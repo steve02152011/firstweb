@@ -288,23 +288,24 @@
       margin-top: 10px;
     }
 
-    /* Game Over Modal */
+    /* Modal Overlay */
     .modal-overlay {
       position: absolute;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(3, 5, 8, 0.92);
+      background: rgba(3, 5, 8, 0.94);
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
       border-radius: 8px;
       z-index: 50;
-      backdrop-filter: blur(3px);
-      padding: 16px;
+      backdrop-filter: blur(4px);
+      padding: 14px 10px;
       text-align: center;
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.25s ease;
+      overflow-y: auto;
     }
 
     .modal-overlay.active {
@@ -318,27 +319,27 @@
       color: var(--accent-red);
       text-shadow: 0 0 12px var(--accent-red);
       letter-spacing: 2px;
-      margin-bottom: 14px;
+      margin-bottom: 8px;
     }
 
     .modal-stats {
       font-family: var(--font-mono);
-      font-size: 14px;
-      line-height: 1.8;
+      font-size: 12px;
+      line-height: 1.6;
       color: #ffffff;
-      margin-bottom: 20px;
+      margin-bottom: 8px;
     }
 
     .action-btn {
       font-family: var(--font-pixel);
-      font-size: 11px;
+      font-size: 10px;
       color: #ffffff;
       background: transparent;
-      border: 2px solid #ffffff;
-      padding: 10px 18px;
+      border: 1px solid #ffffff;
+      padding: 8px 14px;
       border-radius: 6px;
       cursor: pointer;
-      box-shadow: 0 0 10px rgba(255, 255, 255, 0.35);
+      box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
       letter-spacing: 1px;
       transition: all 0.15s ease;
     }
@@ -346,7 +347,133 @@
     .action-btn:hover, .action-btn:active {
       background: #ffffff;
       color: #000000;
-      box-shadow: 0 0 20px #ffffff;
+      box-shadow: 0 0 16px #ffffff;
+    }
+
+    .action-btn.primary-btn {
+      border-color: var(--accent-cyan);
+      color: var(--accent-cyan);
+      box-shadow: 0 0 8px var(--accent-cyan);
+    }
+
+    .action-btn.primary-btn:hover {
+      background: var(--accent-cyan);
+      color: #000;
+    }
+
+    /* Leaderboard Styles */
+    .leaderboard-section {
+      width: 100%;
+      max-width: 250px;
+      margin: 4px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .submit-box {
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .retro-input {
+      background: rgba(0, 0, 0, 0.8);
+      border: 1px solid #ffffff;
+      color: #ffffff;
+      font-family: var(--font-pixel);
+      font-size: 9px;
+      padding: 7px 8px;
+      border-radius: 4px;
+      outline: none;
+      width: 120px;
+      text-align: center;
+      box-shadow: 0 0 6px rgba(255, 255, 255, 0.2);
+      user-select: text;
+      -webkit-user-select: text;
+    }
+
+    .retro-input:focus {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 10px var(--accent-cyan);
+    }
+
+    .status-msg {
+      font-size: 9px;
+      color: var(--accent-gold);
+      min-height: 12px;
+      line-height: 1.3;
+    }
+
+    .leaderboard-box {
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      background: rgba(0, 0, 0, 0.75);
+      border-radius: 6px;
+      padding: 8px;
+      max-height: 155px;
+      overflow-y: auto;
+    }
+
+    .leaderboard-title {
+      font-family: var(--font-pixel);
+      font-size: 9px;
+      color: var(--accent-gold);
+      margin-bottom: 6px;
+      text-shadow: 0 0 6px var(--accent-gold);
+    }
+
+    .leaderboard-list {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .lb-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 3px 2px;
+      border-bottom: 1px dashed rgba(255, 255, 255, 0.15);
+      font-size: 10px;
+    }
+
+    .lb-item:last-child {
+      border-bottom: none;
+    }
+
+    .lb-rank {
+      width: 30px;
+      color: var(--accent-cyan);
+      font-family: var(--font-pixel);
+      font-size: 8px;
+      text-align: left;
+    }
+
+    .lb-rank.top1 { color: #ffd700; text-shadow: 0 0 6px #ffd700; }
+    .lb-rank.top2 { color: #c0c0c0; text-shadow: 0 0 4px #c0c0c0; }
+    .lb-rank.top3 { color: #cd7f32; text-shadow: 0 0 4px #cd7f32; }
+
+    .lb-name {
+      flex: 1;
+      text-align: left;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      padding: 0 4px;
+      color: #ffffff;
+    }
+
+    .lb-score {
+      font-family: var(--font-pixel);
+      font-size: 8px;
+      color: #ffffff;
+    }
+
+    .loading-text {
+      color: #888888;
+      font-size: 9px;
+      padding: 10px 0;
     }
 
     .touch-controls {
@@ -466,12 +593,13 @@
 <body>
 
   <header class="top-bar">
-    <a href="index.html" class="home-link" title="返回首頁">← 回首頁</a>
+    <a href="index.html" class="home-link" title="返回首頁">← 首頁</a>
     <div class="header-title-box">
       <h1 class="game-title">磚塊大消除</h1>
       <div class="game-subtitle">ASTEROIDS VECTOR TETRIS</div>
     </div>
     <div class="top-actions">
+      <button id="leaderboardBtn" class="top-btn" aria-label="查看排行榜">🏆 排行榜</button>
       <button id="soundToggleBtn" class="top-btn" aria-label="開關音效">音效: 開</button>
       <button id="quickRestartBtn" class="top-btn" aria-label="重啟遊戲">重啟 [R]</button>
     </div>
@@ -529,7 +657,37 @@
           <p>歷史最高: <span id="finalBestVal" style="color:var(--accent-cyan);">0</span></p>
           <p>消除行數: <span id="finalLinesVal">0</span></p>
         </div>
-        <button id="modalRestartBtn" class="action-btn">重新開始 (或按住 R 鍵)</button>
+
+        <!-- 雲端排行榜上傳與列表區塊 -->
+        <div class="leaderboard-section">
+          <div id="submitSection" class="submit-box">
+            <input type="text" id="nicknameInput" class="retro-input" placeholder="輸入暱稱" maxlength="10" />
+            <button id="submitScoreBtn" class="action-btn primary-btn">上傳分數</button>
+          </div>
+          <div id="leaderboardStatus" class="status-msg"></div>
+
+          <div class="leaderboard-box">
+            <div class="leaderboard-title">🏆 世界 TOP 10 排行榜</div>
+            <div id="leaderboardList" class="leaderboard-list">
+              <div class="loading-text">載入排行榜中...</div>
+            </div>
+          </div>
+        </div>
+
+        <button id="modalRestartBtn" class="action-btn" style="margin-top: 6px;">重新開始 (或按住 R 鍵)</button>
+      </div>
+
+      <!-- 獨立排行榜查看 Modal -->
+      <div id="leaderboardModal" class="modal-overlay">
+        <h2 class="modal-title" style="color:var(--accent-gold);text-shadow:0 0 12px var(--accent-gold);">🏆 世界前 10 名</h2>
+        <div class="leaderboard-section">
+          <div class="leaderboard-box" style="max-height: 220px;">
+            <div id="viewLeaderboardList" class="leaderboard-list">
+              <div class="loading-text">載入排行榜中...</div>
+            </div>
+          </div>
+        </div>
+        <button id="closeLeaderboardBtn" class="action-btn" style="margin-top: 10px;">關閉</button>
       </div>
     </div>
 
@@ -594,6 +752,10 @@
   </section>
 
   <script>
+    // API 端點設定
+    const API_URL = 'https://script.google.com/macros/s/AKfycbwTzuExy2A4-ECZXSGv5VWTSw6yBKrdWSEvXBsAXjs29rvqyf8kWO8VvbdWBgxAaxrP/exec';
+    let hasSubmittedScore = false;
+
     class RetroSoundController {
       constructor() {
         this.ctx = null;
@@ -764,7 +926,6 @@
 
     const PIECE_TYPES = ['I', 'J', 'L', 'O', 'S', 'T', 'Z'];
 
-    // Super Rotation System (SRS) Wall Kick Offset Tables
     const KICKS_JLSTZ = {
       '0->1': [[0,0], [-1,0], [-1,1], [0,-2], [-1,-2]],
       '1->0': [[0,0], [1,0], [1,-1], [0,2], [1,2]],
@@ -803,13 +964,11 @@
     let lineClearingRows = [];
     let lineClearTimer = 0;
 
-    // R-Key hold 3s state variables
     const R_HOLD_DURATION = 3000;
     let rHolding = false;
     let rHoldStartTime = 0;
     let rHoldElapsed = 0;
 
-    // Vector line particles for Asteroids-style shatter effect
     let particles = [];
 
     class VectorLineParticle {
@@ -851,10 +1010,9 @@
       }
     }
 
-    // Delayed Auto Shift (DAS) and Auto-Repeat Rate (ARR)
-    const DAS = 165; // ms wait before auto-repeat kicks in
-    const ARR = 38;  // ms between each step once repeating
-    const SOFT_DROP_ARR = 42; // ms soft-drop tick rate
+    const DAS = 165; 
+    const ARR = 38;  
+    const SOFT_DROP_ARR = 42; 
 
     const inputState = {
       left: { active: false, timer: 0, arrTimer: 0 },
@@ -897,7 +1055,6 @@
     function updateContinuousInputs(dt) {
       if (gameOver || lineClearingRows.length > 0) return;
 
-      // Handle Left continuous shift
       if (inputState.left.active) {
         inputState.left.timer += dt;
         if (inputState.left.timer >= DAS) {
@@ -909,7 +1066,6 @@
         }
       }
 
-      // Handle Right continuous shift
       if (inputState.right.active) {
         inputState.right.timer += dt;
         if (inputState.right.timer >= DAS) {
@@ -921,7 +1077,6 @@
         }
       }
 
-      // Handle Soft Drop continuous drop
       if (inputState.down.active) {
         inputState.down.timer += dt;
         inputState.down.arrTimer += dt;
@@ -945,7 +1100,7 @@
       return {
         type: type,
         matrix: shape,
-        rotation: 0, // 0: 0, 1: 90 CW, 2: 180, 3: 270 CCW
+        rotation: 0,
         x: Math.floor(COLS / 2) - Math.ceil(shape[0].length / 2),
         y: type === 'I' ? -1 : 0
       };
@@ -964,10 +1119,8 @@
       for (let y = 0; y < rows; y++) {
         for (let x = 0; x < cols; x++) {
           if (dir > 0) {
-            // Clockwise
             result[x][rows - 1 - y] = matrix[y][x];
           } else {
-            // Counter-Clockwise
             result[cols - 1 - x][y] = matrix[y][x];
           }
         }
@@ -998,7 +1151,7 @@
       if (!currentPiece || gameOver || lineClearingRows.length > 0) return;
       sound.init();
 
-      if (currentPiece.type === 'O') return; // O piece does not rotate
+      if (currentPiece.type === 'O') return;
 
       const fromRotation = currentPiece.rotation;
       const toRotation = (fromRotation + (dir > 0 ? 1 : 3)) % 4;
@@ -1009,7 +1162,6 @@
       const tests = kickTable[kickKey] || [[0, 0]];
 
       for (const [kx, ky] of tests) {
-        // In standard Tetris, SRS y-offset is inverted from canvas coordinates (+y is down in canvas)
         const testX = currentPiece.x + kx;
         const testY = currentPiece.y - ky;
 
@@ -1139,7 +1291,6 @@
         lineClearTimer = 160;
         sound.playClear(completed.length);
 
-        // Explode into Asteroids vector line fragments
         completed.forEach(rowIdx => {
           for (let col = 0; col < COLS; col++) {
             const centerX = col * BLOCK_SIZE + BLOCK_SIZE / 2;
@@ -1150,7 +1301,6 @@
           }
         });
 
-        // Tetris scoring model
         const baseScores = [0, 100, 300, 500, 800];
         score += (baseScores[completed.length] || 100) * level;
         lines += completed.length;
@@ -1182,6 +1332,115 @@
       }
     }
 
+    // ==========================================
+    // 雲端排行榜邏輯 (Apps Script 連線)
+    // ==========================================
+
+    async function loadLeaderboard(targetListId = 'leaderboardList') {
+      const listEl = document.getElementById(targetListId);
+      if (!listEl) return;
+      listEl.innerHTML = '<div class="loading-text">載入排行榜中...</div>';
+
+      try {
+        const response = await fetch(`${API_URL}?action=get`);
+        const data = await response.json();
+
+        if (data.status === 'success' && Array.isArray(data.leaderboard)) {
+          renderLeaderboard(data.leaderboard, targetListId);
+        } else {
+          listEl.innerHTML = '<div class="loading-text">無法載入排行榜</div>';
+        }
+      } catch (err) {
+        console.error('Fetch Leaderboard Error:', err);
+        listEl.innerHTML = '<div class="loading-text">連線失敗，無法讀取排行榜</div>';
+      }
+    }
+
+    function renderLeaderboard(scores, targetListId) {
+      const listEl = document.getElementById(targetListId);
+      if (!listEl) return;
+
+      if (!scores || scores.length === 0) {
+        listEl.innerHTML = '<div class="loading-text">尚無記錄，快來搶頭香！</div>';
+        return;
+      }
+
+      let html = '';
+      scores.forEach((item, index) => {
+        const rank = index + 1;
+        let rankClass = '';
+        if (rank === 1) rankClass = 'top1';
+        else if (rank === 2) rankClass = 'top2';
+        else if (rank === 3) rankClass = 'top3';
+
+        html += `
+          <div class="lb-item">
+            <span class="lb-rank ${rankClass}">N.${rank}</span>
+            <span class="lb-name">${escapeHtml(item.name || '無名氏')}</span>
+            <span class="lb-score">${item.score}</span>
+          </div>
+        `;
+      });
+      listEl.innerHTML = html;
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    async function submitScore() {
+      if (hasSubmittedScore) return;
+
+      const nicknameInput = document.getElementById('nicknameInput');
+      const statusEl = document.getElementById('leaderboardStatus');
+      const submitBtn = document.getElementById('submitScoreBtn');
+
+      const name = nicknameInput ? nicknameInput.value.trim() : '';
+
+      if (!name) {
+        statusEl.style.color = 'var(--accent-red)';
+        statusEl.textContent = '請輸入暱稱！';
+        return;
+      }
+
+      statusEl.style.color = 'var(--accent-gold)';
+      statusEl.textContent = '成績上傳中...';
+      submitBtn.disabled = true;
+
+      // 保存暱稱供下次自動帶入
+      localStorage.setItem('vector_tetris_nickname', name);
+
+      try {
+        const response = await fetch(`${API_URL}?action=save&name=${encodeURIComponent(name)}&score=${score}`);
+        const data = await response.json();
+
+        if (data.status === 'success') {
+          hasSubmittedScore = true;
+          statusEl.style.color = 'var(--accent-cyan)';
+          statusEl.textContent = '✅ 成績上傳成功！';
+          const submitSection = document.getElementById('submitSection');
+          if (submitSection) submitSection.style.display = 'none';
+
+          // 重新載入排行榜
+          loadLeaderboard('leaderboardList');
+        } else {
+          statusEl.style.color = 'var(--accent-red)';
+          statusEl.textContent = data.message || '上傳失敗，請重試';
+          submitBtn.disabled = false;
+        }
+      } catch (err) {
+        console.error('Submit Score Error:', err);
+        statusEl.style.color = 'var(--accent-red)';
+        statusEl.textContent = '連線失敗，請檢查網路';
+        submitBtn.disabled = false;
+      }
+    }
+
     function triggerGameOver() {
       gameOver = true;
       sound.playGameOver();
@@ -1195,7 +1454,27 @@
       document.getElementById('finalScoreVal').textContent = score;
       document.getElementById('finalBestVal').textContent = highScore;
       document.getElementById('finalLinesVal').textContent = lines;
+
+      // 重置分數上傳區域狀態
+      hasSubmittedScore = false;
+      const submitSection = document.getElementById('submitSection');
+      if (submitSection) submitSection.style.display = 'flex';
+
+      const statusEl = document.getElementById('leaderboardStatus');
+      if (statusEl) statusEl.textContent = '';
+
+      const submitBtn = document.getElementById('submitScoreBtn');
+      if (submitBtn) submitBtn.disabled = false;
+
+      // 自動帶入先前輸入過的暱稱
+      const savedName = localStorage.getItem('vector_tetris_nickname') || '';
+      const nicknameInput = document.getElementById('nicknameInput');
+      if (nicknameInput) nicknameInput.value = savedName;
+
       document.getElementById('gameOverModal').classList.add('active');
+
+      // 載入當前最新排行榜
+      loadLeaderboard('leaderboardList');
     }
 
     const canvas = document.getElementById('gameCanvas');
@@ -1225,7 +1504,6 @@
         return;
       }
 
-      // Outer vector frame
       context.strokeStyle = '#ffffff';
       context.shadowColor = '#ffffff';
       context.shadowBlur = 6;
@@ -1234,7 +1512,6 @@
       context.fillRect(x + 1, y + 1, size - 2, size - 2);
       context.strokeRect(x + 2, y + 2, size - 4, size - 4);
 
-      // Inner vector geometric notch
       context.strokeStyle = 'rgba(255, 255, 255, 0.35)';
       context.lineWidth = 1;
       context.beginPath();
@@ -1248,11 +1525,9 @@
     }
 
     function render() {
-      // Clear main screen
       ctx.fillStyle = '#040608';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Subtle vector grid coordinate points
       ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
       ctx.lineWidth = 1;
       for (let c = 0; c <= COLS; c++) {
@@ -1268,7 +1543,6 @@
         ctx.stroke();
       }
 
-      // Draw locked grid cells
       for (let y = 0; y < ROWS; y++) {
         const isClearing = lineClearingRows.includes(y);
         for (let x = 0; x < COLS; x++) {
@@ -1278,7 +1552,6 @@
         }
       }
 
-      // Draw Ghost piece
       if (currentPiece && !gameOver && lineClearingRows.length === 0) {
         const ghost = getGhostPosition();
         if (ghost) {
@@ -1291,7 +1564,6 @@
           }
         }
 
-        // Draw Active moving piece
         for (let y = 0; y < currentPiece.matrix.length; y++) {
           for (let x = 0; x < currentPiece.matrix[y].length; x++) {
             if (currentPiece.matrix[y][x] !== 0 && currentPiece.y + y >= 0) {
@@ -1301,7 +1573,6 @@
         }
       }
 
-      // Update & Draw Particles
       for (let i = particles.length - 1; i >= 0; i--) {
         const p = particles[i];
         p.update();
@@ -1388,11 +1659,9 @@
       const dt = Math.min(100, time - lastTime);
       lastTime = time;
 
-      // Handle R-Hold 3 seconds countdown
       updateRHold(time);
 
       if (!gameOver) {
-        // Process continuous hold DAS & ARR inputs
         updateContinuousInputs(dt);
 
         if (lineClearingRows.length > 0) {
@@ -1422,13 +1691,17 @@
     const keysDown = {};
 
     window.addEventListener('keydown', (e) => {
+      // 若玩家正在輸入暱稱，不觸發遊戲快捷鍵
+      if (document.activeElement && document.activeElement.tagName === 'INPUT') {
+        return;
+      }
+
       sound.init();
 
       if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(e.key)) {
         e.preventDefault();
       }
 
-      // Handle R-Key 3-second hold
       if (e.key === 'r' || e.key === 'R') {
         if (!keysDown[e.key]) {
           keysDown[e.key] = true;
@@ -1464,11 +1737,11 @@
         case 'ArrowUp':
         case 'x':
         case 'X':
-          tryRotatePiece(1); // Clockwise
+          tryRotatePiece(1);
           break;
         case 'z':
         case 'Z':
-          tryRotatePiece(-1); // Counter-Clockwise
+          tryRotatePiece(-1);
           break;
         case 'c':
         case 'C':
@@ -1560,18 +1833,15 @@
       btn.addEventListener('mouseleave', onEnd);
     }
 
-    // Attach continuous movement to touch buttons
     attachContinuousTouch('btnLeft', 'left');
     attachContinuousTouch('btnRight', 'right');
     attachContinuousTouch('btnSoftDrop', 'down');
 
-    // Attach instant action triggers
     attachInstantTouch('btnHardDrop', () => hardDrop());
     attachInstantTouch('btnRotateCW', () => tryRotatePiece(1));
     attachInstantTouch('btnRotateCCW', () => tryRotatePiece(-1));
     attachInstantTouch('btnHold', () => holdCurrentPiece());
 
-    // Mobile touch Hold-to-Reset button
     const btnTouchReset = document.getElementById('btnTouchReset');
     if (btnTouchReset) {
       const onTouchResetStart = (e) => {
@@ -1617,6 +1887,36 @@
       restartGame();
     });
 
+    // 頂部排行榜按鈕事件
+    document.getElementById('leaderboardBtn').addEventListener('click', () => {
+      sound.init();
+      document.getElementById('leaderboardModal').classList.add('active');
+      loadLeaderboard('viewLeaderboardList');
+    });
+
+    document.getElementById('closeLeaderboardBtn').addEventListener('click', () => {
+      sound.init();
+      document.getElementById('leaderboardModal').classList.remove('active');
+    });
+
+    // 上傳分數按鈕點擊事件
+    document.getElementById('submitScoreBtn').addEventListener('click', () => {
+      sound.init();
+      submitScore();
+    });
+
+    // 輸入暱稱時按 Enter 鍵發送
+    const nicknameInput = document.getElementById('nicknameInput');
+    if (nicknameInput) {
+      nicknameInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          sound.init();
+          submitScore();
+        }
+      });
+    }
+
     function restartGame() {
       grid = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
       bag = [];
@@ -1630,13 +1930,13 @@
       particles = [];
       dropCounter = 0;
 
-      // Stop inputs
       stopInput('left');
       stopInput('right');
       stopInput('down');
       cancelRHold();
 
       document.getElementById('gameOverModal').classList.remove('active');
+      document.getElementById('leaderboardModal').classList.remove('active');
       updateStats();
 
       fillBag();
