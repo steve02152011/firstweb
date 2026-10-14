@@ -12,8 +12,8 @@
     :root {
       --bg-color: #050505;
       --vector-glow: #ffffff;
-      --vector-dim: rgba(255, 255, 255, 0.22);
-      --vector-ghost: rgba(255, 255, 255, 0.35);
+      --vector-dim: rgba(255, 255, 255, 0.4);
+      --vector-ghost: rgba(255, 255, 255, 0.5);
       --accent-cyan: #00f3ff;
       --accent-red: #ff2a55;
       --accent-gold: #ffbe0b;
@@ -44,20 +44,22 @@
       position: relative;
     }
 
+    /* 淡化老舊電視 (CRT) 掃描線濾鏡效果 */
     body::before {
       content: " ";
       position: fixed;
       top: 0; left: 0; bottom: 0; right: 0;
-      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.45) 50%), 
-                  linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
-      background-size: 100% 3px, 5px 100%;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.12) 50%), 
+                  linear-gradient(90deg, rgba(255, 0, 0, 0.01), rgba(0, 255, 0, 0.005), rgba(0, 0, 255, 0.01));
+      background-size: 100% 4px, 6px 100%;
       pointer-events: none;
       z-index: 99;
+      opacity: 0.35; /* 調淡 CRT 濾鏡感 */
     }
 
     .top-bar {
       width: 100%;
-      max-width: 940px;
+      max-width: 960px;
       padding: 8px 14px;
       display: flex;
       justify-content: space-between;
@@ -74,7 +76,7 @@
       border: 1px solid #ffffff;
       border-radius: 4px;
       letter-spacing: 1px;
-      box-shadow: 0 0 6px var(--vector-dim);
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
       transition: all 0.15s ease;
       display: inline-flex;
       align-items: center;
@@ -84,7 +86,7 @@
     .home-link:hover, .home-link:active {
       background: #ffffff;
       color: #000000;
-      box-shadow: 0 0 14px #ffffff;
+      box-shadow: 0 0 16px #ffffff;
     }
 
     .header-title-box {
@@ -95,13 +97,13 @@
       font-family: var(--font-pixel);
       font-size: 15px;
       color: #ffffff;
-      text-shadow: 0 0 10px #ffffff, 0 0 20px rgba(0, 243, 255, 0.6);
+      text-shadow: 0 0 12px #ffffff, 0 0 24px rgba(0, 243, 255, 0.8);
       letter-spacing: 2px;
     }
 
     .game-subtitle {
       font-size: 9px;
-      color: #888888;
+      color: #aaaaaa;
       letter-spacing: 2px;
       margin-top: 2px;
     }
@@ -120,14 +122,14 @@
       padding: 6px 10px;
       border-radius: 4px;
       cursor: pointer;
-      box-shadow: 0 0 6px var(--vector-dim);
+      box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
       transition: all 0.15s ease;
     }
 
     .top-btn:hover, .top-btn:active {
       background: #ffffff;
       color: #000000;
-      box-shadow: 0 0 12px #ffffff;
+      box-shadow: 0 0 14px #ffffff;
     }
 
     .top-btn.muted {
@@ -139,7 +141,7 @@
     .main-wrapper {
       flex: 1;
       width: 100%;
-      max-width: 960px;
+      max-width: 980px;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -152,15 +154,15 @@
       display: flex;
       flex-direction: column;
       gap: 12px;
-      width: 136px;
+      width: 156px; /* 擴寬側面面板以容納更大更清晰的操作指南 */
     }
 
     .panel-box {
       border: 1px solid #ffffff;
       border-radius: 6px;
       padding: 8px 6px;
-      background: rgba(0, 0, 0, 0.75);
-      box-shadow: 0 0 8px rgba(255, 255, 255, 0.15), inset 0 0 8px rgba(255, 255, 255, 0.05);
+      background: rgba(0, 0, 0, 0.85);
+      box-shadow: 0 0 12px rgba(255, 255, 255, 0.25), inset 0 0 10px rgba(255, 255, 255, 0.08);
       text-align: center;
       position: relative;
     }
@@ -168,37 +170,37 @@
     .panel-box::before {
       content: '';
       position: absolute;
-      top: 2px; left: 2px; width: 4px; height: 4px;
-      border-top: 1px solid #fff; border-left: 1px solid #fff;
+      top: 2px; left: 2px; width: 5px; height: 5px;
+      border-top: 2px solid #fff; border-left: 2px solid #fff;
     }
     .panel-box::after {
       content: '';
       position: absolute;
-      bottom: 2px; right: 2px; width: 4px; height: 4px;
-      border-bottom: 1px solid #fff; border-right: 1px solid #fff;
+      bottom: 2px; right: 2px; width: 5px; height: 5px;
+      border-bottom: 2px solid #fff; border-right: 2px solid #fff;
     }
 
     .panel-title {
       font-family: var(--font-pixel);
       font-size: 9px;
-      color: #aaaaaa;
+      color: #cccccc;
       margin-bottom: 6px;
       letter-spacing: 1px;
     }
 
     .panel-value {
       font-family: var(--font-pixel);
-      font-size: 13px;
+      font-size: 14px;
       color: #ffffff;
-      text-shadow: 0 0 6px #ffffff;
+      text-shadow: 0 0 10px #ffffff;
       word-break: break-all;
     }
 
     .mini-canvas {
       display: block;
       margin: 4px auto 0 auto;
-      background: rgba(8, 12, 18, 0.5);
-      border: 1px dashed rgba(255, 255, 255, 0.3);
+      background: rgba(8, 12, 18, 0.6);
+      border: 1px dashed rgba(255, 255, 255, 0.4);
       border-radius: 4px;
     }
 
@@ -209,12 +211,30 @@
       align-items: center;
     }
 
+    /* 主遊戲 Canvas 加強亮框效果 */
     #gameCanvas {
       background-color: #040608;
       border: 2px solid #ffffff;
       border-radius: 8px;
-      box-shadow: 0 0 24px rgba(255, 255, 255, 0.35), inset 0 0 16px rgba(255, 255, 255, 0.08);
+      box-shadow: 0 0 32px rgba(255, 255, 255, 0.5), inset 0 0 20px rgba(255, 255, 255, 0.15);
       display: block;
+    }
+
+    /* 調大且清晰的操作指南 */
+    .keyboard-guide {
+      font-size: 13px; /* 字體調大 */
+      color: #ffffff;  /* 高對比純白字 */
+      line-height: 1.6;
+      text-align: left;
+      padding: 8px;
+      border-top: 1px dashed rgba(255, 255, 255, 0.4);
+      background: rgba(0, 0, 0, 0.45);
+      border-radius: 6px;
+    }
+
+    .keyboard-guide p {
+      margin-bottom: 3px;
+      text-shadow: 0 0 4px rgba(255, 255, 255, 0.3);
     }
 
     .r-hold-overlay {
@@ -284,7 +304,7 @@
 
     .r-cancel-tip {
       font-size: 10px;
-      color: #888888;
+      color: #aaaaaa;
       margin-top: 10px;
     }
 
@@ -324,7 +344,7 @@
 
     .modal-stats {
       font-family: var(--font-mono);
-      font-size: 12px;
+      font-size: 13px;
       line-height: 1.6;
       color: #ffffff;
       margin-bottom: 8px;
@@ -482,69 +502,53 @@
       padding: 6px 12px 14px 12px;
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 10px;
+      gap: 12px;
       z-index: 25;
     }
 
+    /* 左右各自改為 2x2 雙排佈局 */
     .dpad-cluster, .action-cluster {
       display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: repeat(2, 48px);
       gap: 6px;
     }
 
-    .dpad-cluster {
-      grid-template-columns: repeat(3, 1fr);
-      grid-template-rows: repeat(2, 46px);
-    }
-
-    .action-cluster {
-      grid-template-columns: repeat(3, 1fr);
-      grid-template-rows: repeat(2, 46px);
-    }
-
     .t-btn {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.6);
-      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1.5px solid rgba(255, 255, 255, 0.8);
+      border-radius: 8px;
       color: #ffffff;
       font-family: var(--font-pixel);
-      font-size: 11px;
+      font-size: 13px;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      gap: 3px;
+      gap: 2px;
       touch-action: none;
       cursor: pointer;
-      box-shadow: 0 0 6px rgba(255, 255, 255, 0.15);
+      box-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
       transition: background 0.08s, transform 0.08s;
     }
 
     .t-btn span.label {
-      font-size: 7px;
-      color: #aaaaaa;
+      font-size: 8px;
+      color: #cccccc;
       font-family: var(--font-mono);
       letter-spacing: 0px;
     }
 
     .t-btn:active, .t-btn.pressed {
-      background: rgba(255, 255, 255, 0.38);
+      background: rgba(255, 255, 255, 0.45);
       border-color: #ffffff;
-      box-shadow: 0 0 14px #ffffff;
-      transform: scale(0.95);
+      box-shadow: 0 0 16px #ffffff;
+      transform: scale(0.94);
     }
 
     .t-btn.primary {
       border-color: #ffffff;
-      box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
-    }
-
-    .keyboard-guide {
-      font-size: 9px;
-      color: #888;
-      line-height: 1.5;
-      text-align: left;
-      padding: 6px 4px;
-      border-top: 1px dashed rgba(255, 255, 255, 0.2);
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
     }
 
     @media (max-width: 680px) {
@@ -555,7 +559,7 @@
         font-size: 11px;
       }
       .side-panel {
-        width: 78px;
+        width: 82px;
         gap: 6px;
       }
       .panel-box {
@@ -606,7 +610,7 @@
   </header>
 
   <main class="main-wrapper">
-    <!-- Left panel: Hold, Level, Lines, Help -->
+    <!-- Left panel: Hold, Level, Lines, Instructions -->
     <aside class="side-panel left-panel">
       <div class="panel-box">
         <div class="panel-title">暫存 (HOLD)</div>
@@ -623,15 +627,16 @@
         <div id="linesVal" class="panel-value">0</div>
       </div>
 
+      <!-- 調大調清楚的操作指南 -->
       <div class="keyboard-guide">
-        <p style="color:#fff;margin-bottom:3px;">[ 操作指南 ]</p>
-        <p>←/→/A/D : 連續移動</p>
-        <p>↓/S : 連續軟降</p>
+        <p style="color:var(--accent-cyan); font-weight:bold; margin-bottom:5px;">[ 操作指南 ]</p>
+        <p>←/→/A/D : 移動</p>
+        <p>↓/S : 軟降加速</p>
         <p>Space : 硬降落底</p>
         <p>↑/X : 順時針轉</p>
         <p>Z : 逆時針轉</p>
-        <p>C/Shift : 暫存方塊</p>
-        <p style="color:var(--accent-red);margin-top:4px;">★ 按住 R 鍵 3 秒開新局</p>
+        <p>C/Shift : 暫存</p>
+        <p style="color:var(--accent-red); margin-top:6px; font-weight:bold;">★ 按住 R 3秒開新局</p>
       </div>
     </aside>
 
@@ -710,49 +715,50 @@
     </aside>
   </main>
 
+  <!-- 手機版觸控按鈕：左邊（左移/右移/暫存/重啟），右邊（旋轉順逆/軟降/硬降） -->
   <section class="touch-controls" id="touchControls" aria-label="虛擬控制器">
+    <!-- 左側操作區：移動 & 輔助 (左移、右移、暫存、重啟) -->
     <div class="dpad-cluster">
-      <button class="t-btn" id="btnHold">
+      <button class="t-btn" id="btnLeft" style="grid-column: 1; grid-row: 1;">
+        ◀
+        <span class="label">左移</span>
+      </button>
+      <button class="t-btn" id="btnRight" style="grid-column: 2; grid-row: 1;">
+        ▶
+        <span class="label">右移</span>
+      </button>
+      <button class="t-btn" id="btnHold" style="grid-column: 1; grid-row: 2;">
         ⇋
         <span class="label">暫存</span>
       </button>
-      <button class="t-btn primary" id="btnHardDrop">
-        ⤓
-        <span class="label">硬降</span>
-      </button>
-      <button class="t-btn" id="btnRotateCCW">
-        ⟲
-        <span class="label">逆轉</span>
-      </button>
-
-      <button class="t-btn" id="btnLeft">
-        ◀
-        <span class="label">左</span>
-      </button>
-      <button class="t-btn" id="btnSoftDrop">
-        ▼
-        <span class="label">軟降</span>
-      </button>
-      <button class="t-btn" id="btnRight">
-        ▶
-        <span class="label">右</span>
+      <button class="t-btn" id="btnTouchReset" style="grid-column: 2; grid-row: 2; border-color: rgba(255, 42, 85, 0.8);">
+        <span style="color:var(--accent-red); font-size:12px;">↺ 重啟</span>
+        <span class="label" style="font-size:7px; color:#aaa;">按住3秒</span>
       </button>
     </div>
 
+    <!-- 右側操作區：旋轉 & 下降 (逆轉、順轉、軟降、硬降) -->
     <div class="action-cluster">
-      <button class="t-btn primary" id="btnRotateCW" style="grid-column: 1 / 4; grid-row: 1 / 2;">
-        <span style="font-size:14px; font-weight:bold;">⟳</span>
-        <span class="label" style="font-size:9px; color:#fff;">順時針旋轉</span>
+      <button class="t-btn" id="btnRotateCCW" style="grid-column: 1; grid-row: 1;">
+        ⟲
+        <span class="label">逆時針</span>
       </button>
-      <button class="t-btn" id="btnTouchReset" style="grid-column: 1 / 4; grid-row: 2 / 3; border-color: rgba(255, 42, 85, 0.8);">
-        <span style="color:var(--accent-red); font-size:11px;">↺ 長按重啟</span>
-        <span class="label" style="font-size:8px; color:#aaa;">按住 3 秒重置</span>
+      <button class="t-btn primary" id="btnRotateCW" style="grid-column: 2; grid-row: 1;">
+        ⟳
+        <span class="label">順時針</span>
+      </button>
+      <button class="t-btn" id="btnSoftDrop" style="grid-column: 1; grid-row: 2;">
+        ▼
+        <span class="label">軟降</span>
+      </button>
+      <button class="t-btn primary" id="btnHardDrop" style="grid-column: 2; grid-row: 2;">
+        ⤓
+        <span class="label">硬降</span>
       </button>
     </div>
   </section>
 
   <script>
-    // API 端點設定
     const API_URL = 'https://script.google.com/macros/s/AKfycbwTzuExy2A4-ECZXSGv5VWTSw6yBKrdWSEvXBsAXjs29rvqyf8kWO8VvbdWBgxAaxrP/exec';
     let hasSubmittedScore = false;
 
@@ -885,7 +891,6 @@
     const ROWS = 20;
     const BLOCK_SIZE = 28;
 
-    // Tetromino matrix definitions
     const SHAPES = {
       I: [
         [0, 0, 0, 0],
@@ -999,9 +1004,9 @@
         ctx.translate(this.x, this.y);
         ctx.rotate(this.rot);
         ctx.strokeStyle = `rgba(255, 255, 255, ${Math.max(0, this.life)})`;
-        ctx.lineWidth = 1.6;
+        ctx.lineWidth = 2.0;
         ctx.shadowColor = '#ffffff';
-        ctx.shadowBlur = 4;
+        ctx.shadowBlur = 8;
         ctx.beginPath();
         ctx.moveTo(-this.length / 2, 0);
         ctx.lineTo(this.length / 2, 0);
@@ -1332,10 +1337,6 @@
       }
     }
 
-    // ==========================================
-    // 雲端排行榜邏輯 (Apps Script 連線)
-    // ==========================================
-
     async function loadLeaderboard(targetListId = 'leaderboardList') {
       const listEl = document.getElementById(targetListId);
       if (!listEl) return;
@@ -1412,7 +1413,6 @@
       statusEl.textContent = '成績上傳中...';
       submitBtn.disabled = true;
 
-      // 保存暱稱供下次自動帶入
       localStorage.setItem('vector_tetris_nickname', name);
 
       try {
@@ -1426,7 +1426,6 @@
           const submitSection = document.getElementById('submitSection');
           if (submitSection) submitSection.style.display = 'none';
 
-          // 重新載入排行榜
           loadLeaderboard('leaderboardList');
         } else {
           statusEl.style.color = 'var(--accent-red)';
@@ -1455,7 +1454,6 @@
       document.getElementById('finalBestVal').textContent = highScore;
       document.getElementById('finalLinesVal').textContent = lines;
 
-      // 重置分數上傳區域狀態
       hasSubmittedScore = false;
       const submitSection = document.getElementById('submitSection');
       if (submitSection) submitSection.style.display = 'flex';
@@ -1466,14 +1464,12 @@
       const submitBtn = document.getElementById('submitScoreBtn');
       if (submitBtn) submitBtn.disabled = false;
 
-      // 自動帶入先前輸入過的暱稱
       const savedName = localStorage.getItem('vector_tetris_nickname') || '';
       const nicknameInput = document.getElementById('nicknameInput');
       if (nicknameInput) nicknameInput.value = savedName;
 
       document.getElementById('gameOverModal').classList.add('active');
 
-      // 載入當前最新排行榜
       loadLeaderboard('leaderboardList');
     }
 
@@ -1482,38 +1478,41 @@
     const holdCanvas = document.getElementById('holdCanvas');
     const nextCanvas = document.getElementById('nextCanvas');
 
+    /* 大幅拉亮白色邊框與 Glow 發光感 */
     function drawVectorBlock(context, x, y, size, isGhost = false, isFlash = false) {
       context.save();
-      context.lineWidth = 1.6;
+      context.lineWidth = 2.2; /* 線條加粗 */
 
       if (isFlash) {
         context.strokeStyle = '#ffffff';
         context.fillStyle = '#ffffff';
         context.shadowColor = '#ffffff';
-        context.shadowBlur = 12;
+        context.shadowBlur = 18;
         context.fillRect(x + 1, y + 1, size - 2, size - 2);
         context.restore();
         return;
       }
 
       if (isGhost) {
-        context.strokeStyle = 'rgba(255, 255, 255, 0.35)';
+        context.strokeStyle = 'rgba(255, 255, 255, 0.5)';
         context.setLineDash([4, 4]);
         context.strokeRect(x + 2, y + 2, size - 4, size - 4);
         context.restore();
         return;
       }
 
+      /* 亮白邊框與強烈 Glow 陰影 */
       context.strokeStyle = '#ffffff';
       context.shadowColor = '#ffffff';
-      context.shadowBlur = 6;
-      context.fillStyle = 'rgba(255, 255, 255, 0.05)';
+      context.shadowBlur = 10; /* 強化發光感 */
+      context.fillStyle = 'rgba(255, 255, 255, 0.15)'; /* 調亮填充度 */
 
       context.fillRect(x + 1, y + 1, size - 2, size - 2);
       context.strokeRect(x + 2, y + 2, size - 4, size - 4);
 
-      context.strokeStyle = 'rgba(255, 255, 255, 0.35)';
-      context.lineWidth = 1;
+      /* 內部幾何對角線拉亮 */
+      context.strokeStyle = 'rgba(255, 255, 255, 0.65)';
+      context.lineWidth = 1.2;
       context.beginPath();
       context.moveTo(x + 6, y + 6);
       context.lineTo(x + size - 6, y + size - 6);
@@ -1528,7 +1527,7 @@
       ctx.fillStyle = '#040608';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.06)';
       ctx.lineWidth = 1;
       for (let c = 0; c <= COLS; c++) {
         ctx.beginPath();
@@ -1691,7 +1690,6 @@
     const keysDown = {};
 
     window.addEventListener('keydown', (e) => {
-      // 若玩家正在輸入暱稱，不觸發遊戲快捷鍵
       if (document.activeElement && document.activeElement.tagName === 'INPUT') {
         return;
       }
@@ -1887,7 +1885,6 @@
       restartGame();
     });
 
-    // 頂部排行榜按鈕事件
     document.getElementById('leaderboardBtn').addEventListener('click', () => {
       sound.init();
       document.getElementById('leaderboardModal').classList.add('active');
@@ -1899,13 +1896,11 @@
       document.getElementById('leaderboardModal').classList.remove('active');
     });
 
-    // 上傳分數按鈕點擊事件
     document.getElementById('submitScoreBtn').addEventListener('click', () => {
       sound.init();
       submitScore();
     });
 
-    // 輸入暱稱時按 Enter 鍵發送
     const nicknameInput = document.getElementById('nicknameInput');
     if (nicknameInput) {
       nicknameInput.addEventListener('keydown', (e) => {
