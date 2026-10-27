@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>爆彩猜拳對決 - Gradient Explosion RPS</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <!-- Firebase JS SDK (v9 Compat Version for Standalone HTML) -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800;900&display=swap');
+
+        * {
+            font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Animated Gradient Explosion Background */
+        body {
+            background: linear-gradient(-45deg, #ff007f, #7928ca, #00dfd8, #ff4b2b, #ff007f);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            min-height: 100vh;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Glassmorphism Styles */
+        .glass-card {
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+        }
+
+        .glass-input {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(8px);
+            color: #ffffff;
+        }
+        .glass-input:focus {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #00dfd8;
+            outline: none;
+            box-shadow: 0 0 15px rgba(0, 223, 216, 0.4);
+        }
+
+        /* Glowing Accent Buttons */
+        .btn-gradient-primary {
+            background: linear-gradient(135deg, #ff007f 0%, #7928ca 100%);
+            box-shadow: 0 8px 25px rgba(255, 0, 127, 0.4);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .btn-gradient-primary:active {
+            transform: scale(0.95);
+            box-shadow: 0 4px 15px rgba(255, 0, 127, 0.6);
+        }
+
+        .btn-gradient-secondary {
+            background: linear-gradient(135deg, #00dfd8 0%, #007cf0 100%);
+            box-shadow: 0 8px 25px rgba(0, 223, 216, 0.4);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .btn-gradient-secondary:active {
+            transform: scale(0.95);
+            box-shadow: 0 4px 15px rgba(0, 223, 216, 0.6);
+        }
+
+        /* Large Touch RPS Buttons */
+        .rps-btn {
+            background: rgba(255, 255, 255, 0.07);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .rps-btn:hover {
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-4px);
+        }
+        .rps-btn:active {
+            transform: scale(0.92);
+        }
+        .rps-btn.selected {
+            background: linear-gradient(135deg, rgba(255, 0, 127, 0.8), rgba(121, 40, 202, 0.8));
+            border-color: #00dfd8;
+            box-shadow: 0 0 30px rgba(0, 223, 216, 0.6);
+            transform: scale(1.05);
+        }
+
+        /* Floating Emoji Animation */
+        @keyframes floatEmoji {
+            0% { transform: translateY(0) scale(0.5); opacity: 1; }
+            100% { transform: translateY(-120px) scale(1.4); opacity: 0; }
+        }
+        .floating-emoji {
+            position: absolute;
+            animation: floatEmoji 1.8s ease-out forwards;
+            pointer-events: none;
+            z-index: 50;
+            font-size: 2.5rem;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen text-white relative overflow-x-hidden">
+
+    <!-- Config Warning Banner (Visible if Firebase is not configured) -->
+    <div id="config-warning-banner" class="hidden fixed top-0 left-0 w-full z-50 p-4 bg-gradient-to-r from-red-600 via-pink-600 to-purple-700 text-white shadow-2xl backdrop-blur-md border-b border-white/20">
+        <div class="max-w-xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
+            <div class="flex items-center gap-3">
+                <i class="fa-solid fa-triangle-exclamation text-2xl animate-bounce text-yellow-300"></i>
+                <div>
+                    <h4 class="font-extrabold text-lg">Firebase 未連線</h4>
+                    <p class="text-xs text-white/90">請確認 HTML 內的 Firebase 設定檔。</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header / Navbar -->
+    <header class="w-full p-4 flex justify-between items-center max-w-2xl mx-auto z-10">
+        <a href="index.html" class="flex items-center gap-2 group" title="返回首頁">
+            <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-pink-500 to-cyan-400 flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
+                <span class="text-xl">✊</span>
+            </div>
+            <h1 class="text-2xl font-black tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-yellow-300 via-pink-400 to-cyan-300">
+                爆彩猜拳
+            </h1>
+        </a>
+
+        <!-- Right Header Action Area: Room Badge & Return to Home Button -->
+        <div class="flex items-center gap-2">
+            <!-- 🏠 返回首頁按鈕 -->
+            <a href="index.html" class="glass-card px-3.5 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 hover:bg-white/20 active:scale-95 transition-all border border-white/20 text-cyan-200 hover:text-white" title="返回個人首頁 (index.html)">
+                <i class="fa-solid fa-house text-cyan-400"></i>
+                <span>返回首頁</span>
+            </a>
+
+            <div id="room-badge" class="hidden glass-card px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 border border-cyan-400/40">
+                <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>房號: <strong id="header-room-id" class="text-cyan-300 text-sm">----</strong></span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-1 max-w-2xl w-full mx-auto p-4 flex flex-col justify-center items-center z-10">
+
+        <!-- LOBBY SCREEN -->
+        <div id="lobby-screen" class="w-full glass-card p-6 sm:p-8 rounded-3xl space-y-6 text-center border border-white/20">
+            <div class="space-y-2">
+                <div class="inline-block px-4 py-1.5 rounded-full bg-white/10 text-xs font-extrabold uppercase tracking-widest text-cyan-300 border border-white/10">
+                    ⚡ 2-3 人線上連線對決
+                </div>
+                <h2 class="text-3xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-cyan-200 to-pink-300">
+                    準備好猜拳了嗎？
+                </h2>
+                <p class="text-xs sm:text-sm text-white/70">建立專屬 4 位數房間，邀請好友隨時隨地即時大亂鬥！</p>
+            </div>
+
+            <div class="space-y-4 max-w-sm mx-auto">
+                <div>
+                    <label class="block text-xs font-bold text-left mb-1 text-white/80">你的暱稱 (Your Name)</label>
+                    <div class="relative">
+                        <input type="text" id="player-name-input" maxlength="10" placeholder="輸入玩家暱稱..." 
+                               class="w-full glass-input px-4 py-3.5 rounded-2xl text-sm font-bold placeholder-white/40 pl-11">
+                        <i class="fa-solid fa-user absolute left-4 top-1/2 -translate-y-1/2 text-white/50 text-sm"></i>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                    <button onclick="createRoom()" class="w-full py-4 btn-gradient-primary rounded-2xl font-black text-base flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-plus-circle"></i>
+                        <span>建立房間</span>
+                    </button>
+                    
+                    <button onclick="toggleJoinBox()" class="w-full py-4 glass-card hover:bg-white/10 rounded-2xl font-black text-base flex items-center justify-center gap-2 border border-white/30">
+                        <i class="fa-solid fa-right-to-bracket"></i>
+                        <span>加入房間</span>
+                    </button>
+                </div>
+
+                <!-- Input Room Code Drawer -->
+                <div id="join-room-drawer" class="hidden space-y-3 pt-2">
+                    <div class="relative">
+                        <input type="number" id="room-code-input" placeholder="輸入 4 位數房號 (例如 4829)" maxlength="4"
+                               oninput="if(this.value.length > 4) this.value = this.value.slice(0, 4)"
+                               class="w-full glass-input px-4 py-3.5 rounded-2xl text-center text-lg font-black tracking-widest placeholder-white/30">
+                    </div>
+                    <button onclick="joinRoom()" class="w-full py-3.5 btn-gradient-secondary rounded-2xl font-extrabold text-sm">
+                        進入房間大廳 <i class="fa-solid fa-arrow-right ml-1"></i>
+                    </button>
+                </div>
+
+                <!-- 🏠 Lobby Return to Home Button -->
+                <div class="pt-2">
+                    <a href="index.html" class="w-full py-3 glass-card hover:bg-white/15 rounded-2xl font-bold text-xs text-cyan-200 hover:text-white flex items-center justify-center gap-2 border border-white/20 transition-all active:scale-95">
+                        <i class="fa-solid fa-arrow-left"></i>
+                        <span>返回個人首頁</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Features Quick Info -->
+            <div class="grid grid-cols-3 gap-2 pt-4 border-t border-white/10 text-xs text-white/60">
+                <div class="flex flex-col items-center">
+                    <i class="fa-solid fa-users text-pink-400 text-base mb-1"></i>
+                    <span>支援 2~3 人</span>
+                </div>
+                <div class="flex flex-col items-center">
+                    <i class="fa-solid fa-bolt text-yellow-300 text-base mb-1"></i>
+                    <span>極速即時同步</span>
+                </div>
+                <div class="flex flex-col items-center">
+                    <i class="fa-solid fa-icons text-cyan-400 text-base mb-1"></i>
+                    <span>即時表情互動</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- GAME ROOM SCREEN -->
+        <div id="game-screen" class="hidden w-full space-y-4">
+
+            <!-- Room Info & Player Status Header -->
+            <div class="glass-card p-4 rounded-3xl flex flex-wrap items-center justify-between gap-3 border border-white/20">
+                <div class="flex items-center gap-3">
+                    <div class="bg-gradient-to-r from-pink-500 to-purple-600 px-3.5 py-1.5 rounded-2xl flex items-center gap-2 shadow-md">
+                        <span class="text-xs text-white/80 font-bold">房號</span>
+                        <span id="display-room-code" class="text-lg font-black tracking-wider text-yellow-300">----</span>
+                        <button onclick="copyRoomCode()" title="複製房號" class="ml-1 text-white/80 hover:text-white active:scale-90 transition-transform">
+                            <i class="fa-solid fa-copy text-xs"></i>
+                        </button>
+                    </div>
+                    <div id="player-count-badge" class="px-3 py-1 bg-white/10 rounded-xl text-xs font-bold text-cyan-300 border border-white/10">
+                        人數: <span id="current-player-count">0</span> / 3
+                    </div>
+                </div>
+
+                <button onclick="leaveRoom()" class="px-3.5 py-1.5 bg-red-500/20 hover:bg-red-500/40 text-red-300 rounded-xl font-bold text-xs border border-red-500/30 transition-all">
+                    <i class="fa-solid fa-door-open mr-1"></i> 離開房間
+                </button>
+            </div>
+
+            <!-- Player List Cards -->
+            <div id="players-list-container" class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                <!-- Dynamic Player Cards -->
+            </div>
+
+            <!-- Main Battle Arena Card -->
+            <div class="glass-card p-6 sm:p-8 rounded-3xl text-center space-y-6 relative overflow-hidden border border-white/20">
+                
+                <!-- Status Message Banner -->
+                <div id="game-status-box" class="space-y-1">
+                    <h3 id="game-status-title" class="text-xl sm:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-white to-cyan-300">
+                        等待其他玩家加入...
+                    </h3>
+                    <p id="game-status-subtitle" class="text-xs sm:text-sm text-white/70">
+                        需至少 2 位玩家即可開始遊戲
+                    </p>
+                </div>
+
+                <!-- Reveal Overlay / Battle Display -->
+                <div id="battle-reveal-area" class="hidden py-4 space-y-4">
+                    <div id="reveal-cards-grid" class="flex justify-center items-center gap-4 flex-wrap">
+                        <!-- Revealed choices -->
+                    </div>
+                    <div id="winner-announcement" class="text-2xl sm:text-3xl font-black text-yellow-300 drop-shadow-[0_0_15px_rgba(255,230,0,0.6)] animate-bounce">
+                        <!-- Winner text -->
+                    </div>
+                </div>
+
+                <!-- Choice Selection Phase (Large Mobile-Friendly Touch Buttons) -->
+                <div id="choice-selection-area" class="space-y-4">
+                    <p class="text-xs font-extrabold uppercase tracking-widest text-cyan-300">請選擇你的出拳 (Choose Move)</p>
+                    <div class="grid grid-cols-3 gap-3 sm:gap-4 max-w-md mx-auto">
+                        <button onclick="makeChoice('rock')" id="btn-rock" class="rps-btn p-4 sm:p-6 rounded-3xl flex flex-col items-center justify-center gap-2 group">
+                            <span class="text-4xl sm:text-5xl group-hover:scale-110 transition-transform">✊</span>
+                            <span class="text-xs font-black tracking-wider text-white">石頭</span>
+                        </button>
+                        <button onclick="makeChoice('scissors')" id="btn-scissors" class="rps-btn p-4 sm:p-6 rounded-3xl flex flex-col items-center justify-center gap-2 group">
+                            <span class="text-4xl sm:text-5xl group-hover:scale-110 transition-transform">✂️</span>
+                            <span class="text-xs font-black tracking-wider text-white">剪刀</span>
+                        </button>
+                        <button onclick="makeChoice('paper')" id="btn-paper" class="rps-btn p-4 sm:p-6 rounded-3xl flex flex-col items-center justify-center gap-2 group">
+                            <span class="text-4xl sm:text-5xl group-hover:scale-110 transition-transform">🖐️</span>
+                            <span class="text-xs font-black tracking-wider text-white">布</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Next Round Button -->
+                <div id="play-again-box" class="hidden pt-2">
+                    <button onclick="resetRound()" class="px-8 py-3.5 btn-gradient-secondary rounded-2xl font-black text-sm sm:text-base shadow-xl hover:scale-105 transition-transform">
+                        <i class="fa-solid fa-rotate-right mr-2"></i> 下一局 (Play Again)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Emoji Reaction Bar -->
+            <div class="glass-card px-4 py-3 rounded-2xl flex items-center justify-between gap-2 border border-white/20">
+                <span class="text-xs font-extrabold text-white/70 whitespace-nowrap">即時表情:</span>
+                <div class="flex items-center gap-2 overflow-x-auto py-1">
+                    <button onclick="sendReaction('🔥')" class="px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-xl text-xl active:scale-90 transition-transform">🔥</button>
+                    <button onclick="sendReaction('👏')" class="px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-xl text-xl active:scale-90 transition-transform">👏</button>
+                    <button onclick="sendReaction('😂')" class="px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-xl text-xl active:scale-90 transition-transform">😂</button>
+                    <button onclick="sendReaction('💣')" class="px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-xl text-xl active:scale-90 transition-transform">💣</button>
+                    <button onclick="sendReaction('🎉')" class="px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-xl text-xl active:scale-90 transition-transform">🎉</button>
+                    <button onclick="sendReaction('💩')" class="px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-xl text-xl active:scale-90 transition-transform">💩</button>
+                </div>
+            </div>
+
+            <!-- History Log Card -->
+            <div class="glass-card p-4 rounded-3xl border border-white/20 space-y-3">
+                <div class="flex justify-between items-center text-xs font-extrabold text-white/80">
+                    <span><i class="fa-solid fa-trophy text-yellow-300 mr-1.5"></i> 本局對決戰報 (Match History)</span>
+                    <span id="total-rounds-count" class="text-cyan-300">共 0 回合</span>
+                </div>
+                <div id="history-log-list" class="max-h-36 overflow-y-auto space-y-2 pr-1 text-xs">
+                    <p class="text-white/40 text-center py-2">尚未開始戰鬥...</p>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Floating Emoji Container -->
+    <div id="emoji-floating-container" class="fixed inset-0 pointer-events-none z-50"></div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 hidden glass-card px-6 py-3 rounded-full text-xs font-bold text-white shadow-2xl border border-white/30 flex items-center gap-2 transition-all">
+        <i id="toast-icon" class="fa-solid fa-circle-info text-cyan-400"></i>
+        <span id="toast-msg">提示訊息</span>
+    </div>
+
+    <!-- Application Script -->
+    <script>
+        // =========================================================================
+        // 🔑 FIREBASE CONFIGURATION
+        // =========================================================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyD6tQ8qs88TLbQEsmoUyCzVUTGbu-YxaGE",
+            authDomain: "webtest123-c2670.firebaseapp.com",
+            databaseURL: "https://webtest123-c2670-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "webtest123-c2670",
+            storageBucket: "webtest123-c2670.firebasestorage.app",
+            messagingSenderId: "56910430856",
+            appId: "1:56910430856:web:c1d296d9b535eda451153d"
+        };
+
+        // Choice Mappings
+        const CHOICES = {
+            rock: { label: '石頭', emoji: '✊' },
+            scissors: { label: '剪刀', emoji: '✂️' },
+            paper: { label: '布', emoji: '🖐️' }
+        };
+
+        // Application Global States
+        let db = null;
+        let currentRoomId = null;
+        let myPlayerId = null;
+        let myPlayerName = '';
+        let roomRef = null;
+        let playersRef = null;
+        let roomData = null;
+        let isConfigured = false;
+
+        // Initialize Application on Load
+        window.addEventListener('load', () => {
+            const savedName = localStorage.getItem('rps_player_name');
+            if (savedName) {
+                document.getElementById('player-name-input').value = savedName;
+            }
+
+            // Generate persistent local unique player ID
+            myPlayerId = localStorage.getItem('rps_player_id');
+            if (!myPlayerId) {
+                myPlayerId = 'p_' + Math.random().toString(36).substring(2, 9);
+                localStorage.setItem('rps_player_id', myPlayerId);
+            }
+
+            // Initialize Firebase directly
+            initFirebase();
+        });
+
+        // Initialize Firebase
+        function initFirebase() {
+            try {
+                if (!firebase.apps.length) {
+                    firebase.initializeApp(firebaseConfig);
+                }
+                db = firebase.database();
+                isConfigured = true;
+                document.getElementById('config-warning-banner').classList.add('hidden');
+            } catch (err) {
+                console.error("Firebase init error:", err);
+                showToast("Firebase 初始化失敗，請確認 Firebase 設定", "error");
+                document.getElementById('config-warning-banner').classList.remove('hidden');
+                isConfigured = false;
+            }
+        }
+
+        // Toast Notification Helper
+        function showToast(msg, type = 'info') {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-msg');
+            const toastIcon = document.getElementById('toast-icon');
+
+            toastMsg.innerText = msg;
+            if (type === 'error') {
+                toastIcon.className = "fa-solid fa-triangle-exclamation text-red-400";
+            } else if (type === 'success') {
+                toastIcon.className = "fa-solid fa-circle-check text-emerald-400";
+            } else {
+                toastIcon.className = "fa-solid fa-circle-info text-cyan-400";
+            }
+
+            toast.classList.remove('hidden');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3000);
+        }
+
+        // Toggle Join Room Input Box
+        function toggleJoinBox() {
+            const drawer = document.getElementById('join-room-drawer');
+            drawer.classList.toggle('hidden');
+        }
+
+        // Validate Player Name
+        function validateName() {
+            const nameInput = document.getElementById('player-name-input').value.trim();
+            if (!nameInput) {
+                showToast("請輸入你的玩家暱稱！", "error");
+                return false;
+            }
+            myPlayerName = nameInput;
+            localStorage.setItem('rps_player_name', myPlayerName);
+            return true;
+        }
+
+        // Create Room (4-digit code)
+        function createRoom() {
+            if (!checkFirebaseReady()) return;
+            if (!validateName()) return;
+
+            const code = Math.floor(1000 + Math.random() * 9000).toString();
+            joinRoomWithCode(code, true);
+        }
+
+        // Join Room
+        function joinRoom() {
+            if (!checkFirebaseReady()) return;
+            if (!validateName()) return;
+
+            const codeInput = document.getElementById('room-code-input').value.trim();
+            if (codeInput.length !== 4) {
+                showToast("請輸入正確的 4 位數房號", "error");
+                return;
+            }
+            joinRoomWithCode(codeInput, false);
+        }
+
+        function checkFirebaseReady() {
+            if (!isConfigured || !db) {
+                showToast("Firebase 尚未連線，請檢查網路設定", "error");
+                return false;
+            }
+            return true;
+        }
+
+        // Core Room Join Logic (已修正連線與錯誤監聽)
+        function joinRoomWithCode(roomId, isCreating) {
+            currentRoomId = roomId;
+            roomRef = db.ref(`rps_rooms/${roomId}`);
+            playersRef = db.ref(`rps_rooms/${roomId}/players`);
+
+            roomRef.once('value')
+                .then((snapshot) => {
+                    const exists = snapshot.exists();
+                    
+                    if (isCreating && exists) {
+                        createRoom();
+                        return;
+                    }
+                    
+                    if (!isCreating && !exists) {
+                        showToast("找不到該房間，請確認房號是否正確", "error");
+                        return;
+                    }
+
+                    const data = snapshot.val() || {};
+                    const currentPlayers = data.players || {};
+                    const playerCount = Object.keys(currentPlayers).length;
+
+                    // Max 3 Players limit
+                    if (!currentPlayers[myPlayerId] && playerCount >= 3) {
+                        showToast("該房間已滿（最多 3 位玩家）", "error");
+                        return;
+                    }
+
+                    if (!exists) {
+                        roomRef.set({
+                            createdAt: firebase.database.ServerValue.TIMESTAMP,
+                            status: 'waiting',
+                            round: 1,
+                            history: []
+                        });
+                    }
+
+                    const myRef = db.ref(`rps_rooms/${roomId}/players/${myPlayerId}`);
+                    myRef.set({
+                        id: myPlayerId,
+                        name: myPlayerName,
+                        choice: null,
+                        score: 0,
+                        joinedAt: firebase.database.ServerValue.TIMESTAMP
+                    });
+
+                    // Auto removal on disconnect
+                    myRef.onDisconnect().remove();
+
+                    attachRoomListeners();
+
+                    // Screen Transition
+                    document.getElementById('lobby-screen').classList.add('hidden');
+                    document.getElementById('game-screen').classList.remove('hidden');
+                    document.getElementById('room-badge').classList.remove('hidden');
+                    document.getElementById('header-room-id').innerText = roomId;
+                    document.getElementById('display-room-code').innerText = roomId;
+
+                    showToast(`已成功進入房間 #${roomId}`, "success");
+                })
+                .catch((err) => {
+                    console.error("Firebase 連線或寫入失敗:", err);
+                    showToast("建立失敗！請檢查 Firebase 安全規則 (Permission Denied)", "error");
+                });
+        }
+
+        // Attach Realtime Listeners
+        function attachRoomListeners() {
+            roomRef.on('value', (snapshot) => {
+                if (!snapshot.exists()) {
+                    showToast("房間已關閉", "info");
+                    leaveRoom(false);
+                    return;
+                }
+
+                roomData = snapshot.val();
+                updateGameUI(roomData);
+            });
+
+            const reactionsRef = db.ref(`rps_rooms/${currentRoomId}/reactions`);
+            reactionsRef.limitToLast(1).on('child_added', (snapshot) => {
+                const data = snapshot.val();
+                if (data && data.timestamp > Date.now() - 3000) {
+                    spawnFloatingEmoji(data.emoji);
+                }
+            });
+        }
+
+        // Update UI state based on database
+        function updateGameUI(data) {
+            const players = data.players || {};
+            const playerArray = Object.values(players);
+            const playerCount = playerArray.length;
+
+            document.getElementById('current-player-count').innerText = playerCount;
+
+            renderPlayersList(playerArray, data.status);
+
+            // Automatically resolve choices when everyone is locked in
+            if (playerCount >= 2 && data.status !== 'revealed') {
+                const allMadeChoice = playerArray.every(p => p.choice !== undefined && p.choice !== null);
+                if (allMadeChoice) {
+                    const isFirstPlayer = playerArray[0].id === myPlayerId;
+                    if (isFirstPlayer) {
+                        calculateAndTriggerReveal(data, playerArray);
+                    }
+                }
+            }
+
+            const statusTitle = document.getElementById('game-status-title');
+            const statusSubtitle = document.getElementById('game-status-subtitle');
+            const choiceArea = document.getElementById('choice-selection-area');
+            const battleArea = document.getElementById('battle-reveal-area');
+            const playAgainBox = document.getElementById('play-again-box');
+
+            const myData = players[myPlayerId];
+            highlightSelectedChoice(myData ? myData.choice : null);
+
+            if (playerCount < 2) {
+                statusTitle.innerText = "⏳ 等待其他玩家加入...";
+                statusSubtitle.innerText = `目前房內已有 1 位玩家，還需要 1~2 位即可開始！`;
+                choiceArea.classList.remove('hidden');
+                battleArea.classList.add('hidden');
+                playAgainBox.classList.add('hidden');
+            } else if (data.status === 'waiting' || data.status === 'playing') {
+                const chosenCount = playerArray.filter(p => p.choice).length;
+                statusTitle.innerText = `🎮 爭霸開打中 (Round ${data.round || 1})`;
+                statusSubtitle.innerText = myData && myData.choice 
+                    ? `已成功鎖定出拳！等待其他人 (${chosenCount}/${playerCount})...` 
+                    : `請從下方選擇你的出拳（已選擇: ${chosenCount}/${playerCount}）`;
+
+                choiceArea.classList.remove('hidden');
+                battleArea.classList.add('hidden');
+                playAgainBox.classList.add('hidden');
+            } else if (data.status === 'revealed') {
+                statusTitle.innerText = `🏆 第 ${data.round || 1} 回合結果揭曉！`;
+                statusSubtitle.innerText = "看看誰才是猜拳霸主！";
+
+                choiceArea.classList.add('hidden');
+                battleArea.classList.remove('hidden');
+                playAgainBox.classList.remove('hidden');
+
+                renderRevealCards(playerArray, data.lastRoundResult);
+            }
+
+            renderHistoryLog(data.history || []);
+        }
+
+        // Render Player Cards List
+        function renderPlayersList(players, roomStatus) {
+            const container = document.getElementById('players-list-container');
+            container.innerHTML = '';
+
+            players.forEach((p, idx) => {
+                const isMe = p.id === myPlayerId;
+                const hasChosen = p.choice !== null && p.choice !== undefined;
+
+                const card = document.createElement('div');
+                card.className = `glass-card p-3 rounded-2xl border ${isMe ? 'border-cyan-400/80 bg-cyan-950/20' : 'border-white/10'} flex flex-col items-center gap-1.5 relative`;
+                
+                let statusBadge = '';
+                if (roomStatus === 'revealed') {
+                    const choiceObj = CHOICES[p.choice] || { emoji: '❓', label: '未出' };
+                    statusBadge = `<span class="text-xl">${choiceObj.emoji}</span>`;
+                } else {
+                    statusBadge = hasChosen 
+                        ? `<span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-bold border border-emerald-500/40">✓ 已準備</span>`
+                        : `<span class="px-2 py-0.5 rounded-full bg-yellow-500/20 text-yellow-300 text-[10px] font-bold border border-yellow-500/40">思考中...</span>`;
+                }
+
+                card.innerHTML = `
+                    <div class="flex items-center gap-1.5 w-full justify-between">
+                        <span class="text-[10px] font-bold px-1.5 py-0.5 bg-white/10 rounded-md text-white/70">P${idx + 1}</span>
+                        <span class="text-xs font-black text-yellow-300">${p.score || 0} 勝</span>
+                    </div>
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-purple-500 to-pink-500 flex items-center justify-center font-black text-sm shadow-md">
+                        ${p.name.substring(0, 1).toUpperCase()}
+                    </div>
+                    <div class="text-center w-full truncate">
+                        <p class="text-xs font-bold text-white truncate">${escapeHtml(p.name)} ${isMe ? '<span class="text-cyan-300 text-[10px]">(你)</span>' : ''}</p>
+                    </div>
+                    <div class="mt-0.5">
+                        ${statusBadge}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Highlight Active Choice Button
+        function highlightSelectedChoice(choiceKey) {
+            ['rock', 'scissors', 'paper'].forEach(type => {
+                const btn = document.getElementById(`btn-${type}`);
+                if (btn) {
+                    if (type === choiceKey) {
+                        btn.classList.add('selected');
+                    } else {
+                        btn.classList.remove('selected');
+                    }
+                }
+            });
+        }
+
+        // Make Player Choice Action
+        function makeChoice(choiceKey) {
+            if (!currentRoomId || !myPlayerId) return;
+            if (roomData && roomData.status === 'revealed') return;
+
+            const myRef = db.ref(`rps_rooms/${currentRoomId}/players/${myPlayerId}`);
+            myRef.update({ choice: choiceKey });
+
+            db.ref(`rps_rooms/${currentRoomId}`).update({ status: 'playing' });
+            showToast(`你選擇了 ${CHOICES[choiceKey].emoji} ${CHOICES[choiceKey].label}`, "info");
+        }
+
+        // 2 or 3 Players Game Calculation Engine
+        function calculateAndTriggerReveal(currentData, players) {
+            const playerChoices = players.map(p => p.choice);
+            const uniqueChoices = [...new Set(playerChoices)];
+
+            let winners = [];
+            let resultMessage = '';
+
+            if (players.length === 2) {
+                const p1 = players[0];
+                const p2 = players[1];
+
+                if (p1.choice === p2.choice) {
+                    resultMessage = '平手 (Tie)！大家的想法一模一樣！';
+                } else if (
+                    (p1.choice === 'rock' && p2.choice === 'scissors') ||
+                    (p1.choice === 'scissors' && p2.choice === 'paper') ||
+                    (p1.choice === 'paper' && p2.choice === 'rock')
+                ) {
+                    winners.push(p1.id);
+                    resultMessage = `🎉 ${escapeHtml(p1.name)} 獲勝！(${CHOICES[p1.choice].emoji} 勝 ${CHOICES[p2.choice].emoji})`;
+                } else {
+                    winners.push(p2.id);
+                    resultMessage = `🎉 ${escapeHtml(p2.name)} 獲勝！(${CHOICES[p2.choice].emoji} 勝 ${CHOICES[p1.choice].emoji})`;
+                }
+
+            } else if (players.length === 3) {
+                if (uniqueChoices.length === 1) {
+                    resultMessage = '平手！三位玩家出了一模一樣的手勢！';
+                } else if (uniqueChoices.length === 3) {
+                    resultMessage = '平手！石頭、剪刀、布同時出現互相剋制！';
+                } else if (uniqueChoices.length === 2) {
+                    let winningChoice = '';
+                    if (uniqueChoices.includes('rock') && uniqueChoices.includes('scissors')) winningChoice = 'rock';
+                    if (uniqueChoices.includes('scissors') && uniqueChoices.includes('paper')) winningChoice = 'scissors';
+                    if (uniqueChoices.includes('paper') && uniqueChoices.includes('rock')) winningChoice = 'paper';
+
+                    const winningPlayers = players.filter(p => p.choice === winningChoice);
+                    winners = winningPlayers.map(p => p.id);
+                    
+                    const winnerNames = winningPlayers.map(p => escapeHtml(p.name)).join(' & ');
+                    resultMessage = `🎉 ${winnerNames} 贏得了這一局！(${CHOICES[winningChoice].emoji} 壓制對手)`;
+                }
+            }
+
+            const updates = {};
+            players.forEach(p => {
+                if (winners.includes(p.id)) {
+                    updates[`rps_rooms/${currentRoomId}/players/${p.id}/score`] = (p.score || 0) + 1;
+                }
+            });
+
+            const newHistoryItem = {
+                round: currentData.round || 1,
+                message: resultMessage,
+                timestamp: Date.now()
+            };
+            const history = currentData.history || [];
+            history.unshift(newHistoryItem);
+
+            updates[`rps_rooms/${currentRoomId}/status`] = 'revealed';
+            updates[`rps_rooms/${currentRoomId}/history`] = history.slice(0, 10);
+            updates[`rps_rooms/${currentRoomId}/lastRoundResult`] = {
+                winners: winners,
+                message: resultMessage
+            };
+
+            db.ref().update(updates);
+        }
+
+        // Render Revealed Cards & Fireworks
+        function renderRevealCards(players, lastResult) {
+            const grid = document.getElementById('reveal-cards-grid');
+            const winnerText = document.getElementById('winner-announcement');
+            grid.innerHTML = '';
+
+            const isWinnerMe = lastResult && lastResult.winners && lastResult.winners.includes(myPlayerId);
+
+            if (isWinnerMe) {
+                triggerConfetti();
+            }
+
+            players.forEach(p => {
+                const choice = CHOICES[p.choice] || { emoji: '❓', label: '未出' };
+                const isWinner = lastResult && lastResult.winners && lastResult.winners.includes(p.id);
+
+                const card = document.createElement('div');
+                card.className = `glass-card p-4 rounded-3xl flex flex-col items-center gap-2 border-2 ${isWinner ? 'border-yellow-400 bg-yellow-400/20 scale-105 shadow-[0_0_25px_rgba(250,204,21,0.5)]' : 'border-white/10'}`;
+                card.innerHTML = `
+                    <span class="text-xs font-bold text-white/80">${escapeHtml(p.name)}</span>
+                    <span class="text-5xl animate-bounce">${choice.emoji}</span>
+                    <span class="text-xs font-black text-cyan-300">${choice.label}</span>
+                    ${isWinner ? '<span class="text-[10px] font-black bg-yellow-400 text-black px-2 py-0.5 rounded-full mt-1">WINNER</span>' : ''}
+                `;
+                grid.appendChild(card);
+            });
+
+            winnerText.innerText = lastResult ? lastResult.message : '';
+        }
+
+        // Reset Round (Play Again)
+        function resetRound() {
+            if (!currentRoomId) return;
+
+            const updates = {};
+            updates[`rps_rooms/${currentRoomId}/status`] = 'waiting';
+            updates[`rps_rooms/${currentRoomId}/round`] = (roomData.round || 1) + 1;
+
+            if (roomData && roomData.players) {
+                Object.keys(roomData.players).forEach(pId => {
+                    updates[`rps_rooms/${currentRoomId}/players/${pId}/choice`] = null;
+                });
+            }
+
+            db.ref().update(updates);
+        }
+
+        // Render History Log
+        function renderHistoryLog(historyList) {
+            const logContainer = document.getElementById('history-log-list');
+            document.getElementById('total-rounds-count').innerText = `共 ${historyList.length} 回合`;
+
+            if (historyList.length === 0) {
+                logContainer.innerHTML = `<p class="text-white/40 text-center py-2">尚未開始戰鬥...</p>`;
+                return;
+            }
+
+            logContainer.innerHTML = '';
+            historyList.forEach(item => {
+                const row = document.createElement('div');
+                row.className = "flex justify-between items-center bg-white/5 px-3 py-2 rounded-xl border border-white/5";
+                row.innerHTML = `
+                    <span class="font-extrabold text-cyan-400">R${item.round}</span>
+                    <span class="text-white/90 truncate max-w-[80%]">${item.message}</span>
+                `;
+                logContainer.appendChild(row);
+            });
+        }
+
+        // Emoji Reaction Sender
+        function sendReaction(emoji) {
+            if (!currentRoomId || !db) return;
+            const reactionsRef = db.ref(`rps_rooms/${currentRoomId}/reactions`);
+            reactionsRef.push({
+                emoji: emoji,
+                sender: myPlayerName,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
+        }
+
+        // Floating Emoji Effect
+        function spawnFloatingEmoji(emoji) {
+            const container = document.getElementById('emoji-floating-container');
+            const el = document.createElement('div');
+            el.className = 'floating-emoji';
+            el.innerText = emoji;
+
+            const randomX = Math.floor(Math.random() * 80) + 10;
+            el.style.left = `${randomX}%`;
+            el.style.bottom = `10%`;
+
+            container.appendChild(el);
+            setTimeout(() => {
+                el.remove();
+            }, 1800);
+        }
+
+        // Copy Room Code
+        function copyRoomCode() {
+            if (!currentRoomId) return;
+            const tempInput = document.createElement('input');
+            tempInput.value = currentRoomId;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+            showToast(`已複製房號: ${currentRoomId}`, "success");
+        }
+
+        // Leave Room
+        function leaveRoom(manual = true) {
+            if (currentRoomId && myPlayerId && db) {
+                db.ref(`rps_rooms/${currentRoomId}/players/${myPlayerId}`).remove();
+                if (roomRef) roomRef.off();
+                if (playersRef) playersRef.off();
+            }
+
+            currentRoomId = null;
+            roomRef = null;
+            playersRef = null;
+
+            document.getElementById('game-screen').classList.add('hidden');
+            document.getElementById('room-badge').classList.add('hidden');
+            document.getElementById('lobby-screen').classList.remove('hidden');
+
+            if (manual) showToast("已離開房間", "info");
+        }
+
+        // Confetti Celebration
+        function triggerConfetti() {
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 80,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
+            }
+        }
+
+        // HTML Escape Helper
+        function escapeHtml(str) {
+            return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+    </script>
+</body>
+</html>
