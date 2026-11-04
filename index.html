@@ -161,6 +161,7 @@
           <a href="#about" class="px-3.5 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-white/5 transition-all">About</a>
           <a href="#skills" class="px-3.5 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-white/5 transition-all">專長</a>
           <a href="#works" class="px-3.5 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-white/5 transition-all">作品與獲獎</a>
+          <a href="#news" class="px-3.5 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-white/5 transition-all">最新消息</a>
           
           <!-- Direct RPS Game Link -->
           <a href="rps.html" class="flex items-center space-x-1.5 px-3 py-2 rounded-lg text-sm font-medium text-fuchsia-300 hover:text-white hover:bg-fuchsia-500/20 transition-all border border-fuchsia-500/30 bg-fuchsia-950/20">
@@ -168,14 +169,7 @@
             <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-fuchsia-500/30 text-fuchsia-200 border border-fuchsia-400/40 font-mono animate-pulse font-bold">2-3人連線</span>
           </a>
 
-          <!-- Coming Soon Items -->
-          <div class="relative group">
-            <button onclick="showComingSoonNotice('News')" class="flex items-center space-x-1.5 px-3 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-200 hover:bg-white/5 transition-all">
-              <span>News</span>
-              <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 font-mono">Coming soon</span>
-            </button>
-          </div>
-
+          <!-- Coming Soon Item -->
           <div class="relative group">
             <button onclick="showComingSoonNotice('Tools')" class="flex items-center space-x-1.5 px-3 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-200 hover:bg-white/5 transition-all">
               <span>Tools</span>
@@ -217,6 +211,7 @@
       <a href="#about" class="mobile-nav-link block px-3 py-2.5 rounded-lg text-base font-medium text-slate-200 hover:bg-white/10">About</a>
       <a href="#skills" class="mobile-nav-link block px-3 py-2.5 rounded-lg text-base font-medium text-slate-200 hover:bg-white/10">專長</a>
       <a href="#works" class="mobile-nav-link block px-3 py-2.5 rounded-lg text-base font-medium text-slate-200 hover:bg-white/10">作品與獲獎</a>
+      <a href="#news" class="mobile-nav-link block px-3 py-2.5 rounded-lg text-base font-medium text-slate-200 hover:bg-white/10">最新消息</a>
       
       <!-- Mobile Game Entry -->
       <a href="rps.html" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-base font-bold text-fuchsia-300 bg-fuchsia-500/10 border border-fuchsia-500/30">
@@ -227,10 +222,6 @@
       </a>
 
       <div class="pt-2 border-t border-white/10 space-y-2">
-        <button onclick="showComingSoonNotice('News')" class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm text-slate-400 hover:bg-white/5">
-          <span>News</span>
-          <span class="text-xs px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">Coming soon</span>
-        </button>
         <button onclick="showComingSoonNotice('Tools')" class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm text-slate-400 hover:bg-white/5">
           <span>Tools</span>
           <span class="text-xs px-2 py-0.5 rounded-full bg-violet-500/20 text-violet-300 border border-violet-500/30">Coming soon</span>
@@ -596,6 +587,26 @@
       </div>
     </section>
 
+    <!-- News Section (最新消息區塊：讀取 news.json) -->
+    <section id="news" class="py-24 px-4 sm:px-6 lg:px-8 relative">
+      <div class="max-w-6xl mx-auto">
+        <!-- Section Header -->
+        <div class="text-center mb-16 space-y-3">
+          <div class="inline-block px-3.5 py-1 rounded-md text-xs sm:text-sm font-semibold uppercase tracking-widest text-cyan-400 bg-cyan-950/60 border border-cyan-800/40">Latest Updates</div>
+          <h2 class="text-4xl sm:text-5xl font-black text-white tracking-tight">最新消息</h2>
+          <div class="w-20 h-1.5 bg-gradient-to-r from-cyan-400 to-teal-400 mx-auto rounded-full"></div>
+          <p class="text-base text-slate-300 max-w-lg mx-auto pt-2">即時同步 Google 快訊關注之新聞與資訊</p>
+        </div>
+
+        <!-- News Cards Container -->
+        <div id="news-container" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="col-span-full glass-card rounded-2xl p-8 text-center text-slate-400 border border-white/10 animate-pulse">
+            最新消息載入中...
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- Contact Section -->
     <section id="contact" class="py-24 px-4 sm:px-6 lg:px-8 relative">
       <div class="max-w-4xl mx-auto">
@@ -677,6 +688,8 @@
         <a href="#skills" class="hover:text-cyan-300 transition-colors">專長</a>
         <span>•</span>
         <a href="#works" class="hover:text-cyan-300 transition-colors">代表作品</a>
+        <span>•</span>
+        <a href="#news" class="hover:text-cyan-300 transition-colors">最新消息</a>
         <span>•</span>
         <a href="rps.html" class="hover:text-fuchsia-300 transition-colors font-semibold text-fuchsia-400">✊ 爆彩猜拳遊戲</a>
         <span>•</span>
@@ -770,6 +783,60 @@
         document.body.removeChild(textArea);
       }
     }
+
+    // Dynamic Fetch for news.json
+    async function loadNews() {
+      const container = document.getElementById('news-container');
+      if (!container) return;
+
+      try {
+        const response = await fetch('news.json?t=' + new Date().getTime());
+        if (!response.ok) throw new Error('無法讀取新聞資料');
+        const newsList = await response.json();
+
+        if (!newsList || newsList.length === 0) {
+          container.innerHTML = `
+            <div class="col-span-full glass-card rounded-2xl p-8 text-center text-slate-400 border border-white/10">
+              目前尚無最新消息。
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = newsList.map(item => `
+          <a href="${item.link}" target="_blank" rel="noopener noreferrer" class="glass-card rounded-2xl p-6 border border-cyan-500/20 hover:border-cyan-400/50 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group space-y-4">
+            <div class="space-y-2">
+              <div class="flex items-center justify-between text-xs text-cyan-400 font-mono">
+                <span>Google Alerts</span>
+                <span>${item.date || ''}</span>
+              </div>
+              <h3 class="text-lg font-bold text-white group-hover:text-cyan-300 transition-colors line-clamp-2">
+                ${item.title}
+              </h3>
+              <p class="text-sm text-slate-300 line-clamp-3 leading-relaxed">
+                ${item.snippet || ''}
+              </p>
+            </div>
+            <div class="pt-3 border-t border-white/10 flex items-center justify-between text-xs text-slate-400 group-hover:text-cyan-300 transition-colors font-medium">
+              <span>閱讀完整報導</span>
+              <svg class="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+              </svg>
+            </div>
+          </a>
+        `).join('');
+
+      } catch (error) {
+        console.error('載入新聞失敗:', error);
+        container.innerHTML = `
+          <div class="col-span-full glass-card rounded-2xl p-8 text-center text-slate-400 border border-white/10">
+            目前暫無最新消息更新。
+          </div>
+        `;
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadNews);
   </script>
 </body>
 </html>
