@@ -1,0 +1,114 @@
+# RSS 網址：
+# https://www.google.com/alerts/feeds/14031591562911991548/12111528030970133842
+
+name: Update News Feed
+
+env:
+  RSS_URL: "https://www.google.com/alerts/feeds/14031591562911991548/12111528030970133842"
+
+on:
+  schedule:
+    # 每天 UTC 00:00 (台灣時間早上 08:00) 自動執行
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fetch-and-update-news:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 檢出專案碼
+        uses: actions/checkout@v4
+
+      - name: 設定 Python 環境
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: 抓取 RSS 並轉存為 news.json
+        run: |
+          python3 - << 'EOF'
+          import os
+          import json
+          import urllib.request
+          import xml.etree.ElementTree as ET
+          import re
+          import html
+          import urllib.parse
+
+          rss_url = os.environ.get("RSS_URL")
+          req = urllib.request.Request(rss_url, headers={'User-Agent': 'Mozilla/5.0'})
+
+          try:
+              with urllib.request.urlopen(req) as response:
+                  xml_data = response.read()
+
+              root = ET.fromstring(xml_data)
+              ns = {'atom': 'http://www.w3.org/2005/Atom'}
+
+              entries = root.findall('atom:entry', ns) or root.findall('entry')
+              if not entries:
+                  entries = root.findall('.//item')
+
+              items = []
+
+              def clean_text(text):
+                  if not text:
+                      return ""
+                  text = html.unescape(text)
+                  text = re.sub(r'<[^>]+>', '', text)
+                  return text.strip()
+
+              for entry in entries:
+                  title_elem = entry.find('atom:title', ns) if entry.find('atom:title', ns) is not None else entry.find('title')
+                  title = clean_text(title_elem.text) if title_elem is not None else "無標題"
+
+                  link = ""
+                  link_elem = entry.find('atom:link', ns) if entry.find('atom:link', ns) is not None else entry.find('link')
+                  if link_elem is not None:
+                      link = link_elem.attrib.get('href', link_elem.text or '')
+
+                  if 'google.com/url?' in link:
+                      match = re.search(r'url=([^&]+)', link)
+                      if match:
+                          link = urllib.parse.unquote(match.group(1))
+
+                  pub_elem = (entry.find('atom:published', ns) or
+                              entry.find('atom:updated', ns) or
+                              entry.find('published') or
+                              entry.find('pubDate'))
+                  date_str = pub_elem.text[:10] if pub_elem is not None and pub_elem.text else ""
+
+                  content_elem = (entry.find('atom:content', ns) or
+                                  entry.find('atom:summary', ns) or
+                                  entry.find('content') or
+                                  entry.find('description'))
+                  snippet = clean_text(content_elem.text) if content_elem is not None else ""
+
+                  items.append({
+                      "title": title,
+                      "link": link,
+                      "date": date_str,
+                      "snippet": snippet
+                  })
+
+              with open('news.json', 'w', encoding='utf-8') as f:
+                  json.dump(items, f, ensure_ascii=False, indent=2)
+
+              print(f"成功抓取 {len(items)} 則新聞並儲存至 news.json")
+
+          except Exception as e:
+              print(f"抓取新聞時發生錯誤: {e}")
+              if not os.path.exists('news.json'):
+                  with open('news.json', 'w', encoding='utf-8') as f:
+                      json.dump([], f)
+          EOF
+
+      - name: 提交並推送 news.json 至 Repository
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add news.json
+          git diff --quiet && git diff --staged --quiet || (git commit -m "chore: 自動更新最新消息 news.json" && git push)
